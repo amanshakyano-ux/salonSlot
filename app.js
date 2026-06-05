@@ -23,6 +23,7 @@ const express = require("express");
 const userRoutes = require("./routes/authRoutes");
 const salonRoutes = require("./routes/salonRoutes");
 const serviceRoutes = require("./routes/serviceRoutes")
+const bookingRoutes = require("./routes/bookingRoutes")
 require("./models")
 
 const app = express();
@@ -41,6 +42,7 @@ app.use("/user", userRoutes);
 
 app.use("/service",serviceRoutes)
 
+app.use("/booking",bookingRoutes)
 app.use((err, req, res, next) => {
   return res.status(500).json({ success: false, message: err.message });
 });

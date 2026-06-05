@@ -1,5 +1,8 @@
 const Salon = require("../models/salon");
+const User = require("../models/user")
+const Service = require("../models/service")
 const { isInValid } = require("../services/validator");
+const { Op } = require("sequelize");
 
 const createSalon = async (req, res, next) => {
   try {
@@ -48,4 +51,90 @@ const createSalon = async (req, res, next) => {
   }
 };
 
-module.exports = { createSalon };
+ 
+
+const searchSalons = async (req, res, next) => {
+  try {
+    const { query } = req.query;
+
+    const whereClause = {};
+
+    if (query) {
+      whereClause[Op.or] = [
+        {
+          name: {
+            [Op.like]: `%${query}%`,
+          },
+        },
+        {
+          city: {
+            [Op.like]: `%${query}%`,
+          },
+        },
+        {
+          area: {
+            [Op.like]: `%${query}%`,
+          },
+        },
+        {
+          address: {
+            [Op.like]: `%${query}%`,
+          },
+        },
+      ];
+    }
+
+    const salons = await Salon.findAll({
+      where: whereClause,
+
+      include: [
+        {
+          model: User,
+          attributes: ["id", "name"],
+        },
+        {
+          model: Service,
+          attributes: ["id", "name", "price"],
+        },
+      ],
+    });
+ 
+    const formattedSalons = salons.map((salon) => {
+      const services = salon.Services || [];
+
+      const startingPrice =
+        services.length > 0
+          ? Math.min(...services.map((service) => Number(service.price)))
+          : null;
+
+      return {
+        id: salon.id,
+        name: salon.name,
+        address: salon.address,
+        city: salon.city,
+        area: salon.area,
+        openingTime: salon.openingTime,
+        closingTime: salon.closingTime,
+
+        owner: {
+          id: salon.userid,
+          name: salon.user.name,
+        },
+
+        servicesFrom: startingPrice,
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      totalSalons: formattedSalons.length,
+      salons: formattedSalons,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+ 
+
+module.exports = { createSalon,searchSalons};
