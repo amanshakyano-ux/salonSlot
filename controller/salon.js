@@ -1,20 +1,29 @@
 const Salon = require("../models/salon");
-const User = require("../models/user")
-const Service = require("../models/service")
+const User = require("../models/user");
+const Service = require("../models/service");
 const { isInValid } = require("../services/validator");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
 const { Op } = require("sequelize");
+
+const uploadToCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "trimlyq/salons" },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+};
 
 const createSalon = async (req, res, next) => {
   try {
+    const { name, address, city, area, openingTime, closingTime } = req.body;
     
-    const {
-      name,
-      address,
-      city,
-      area,
-      openingTime,
-      closingTime,
-    } = req.body;
 
     if (
       isInValid(name) ||
@@ -29,7 +38,10 @@ const createSalon = async (req, res, next) => {
         message: "All fields are mandatory",
       });
     }
- 
+    const result = await uploadToCloudinary(req.file.buffer);
+
+     const imageUrl = result.secure_url;
+
     const salon = await Salon.create({
       name,
       address,
@@ -37,6 +49,7 @@ const createSalon = async (req, res, next) => {
       area,
       openingTime,
       closingTime,
+      imageUrl,
       ownerId: req.user.id,
     });
 
@@ -45,13 +58,10 @@ const createSalon = async (req, res, next) => {
       salon,
       message: "Salon created successfully",
     });
-
   } catch (err) {
     next(err);
   }
 };
-
- 
 
 const searchSalons = async (req, res, next) => {
   try {
@@ -98,7 +108,7 @@ const searchSalons = async (req, res, next) => {
         },
       ],
     });
- 
+
     const formattedSalons = salons.map((salon) => {
       const services = salon.Services || [];
 
@@ -115,6 +125,7 @@ const searchSalons = async (req, res, next) => {
         area: salon.area,
         openingTime: salon.openingTime,
         closingTime: salon.closingTime,
+        imageUrl:salon.imageUrl,
 
         owner: {
           id: salon.userid,
@@ -135,6 +146,4 @@ const searchSalons = async (req, res, next) => {
   }
 };
 
- 
-
-module.exports = { createSalon,searchSalons};
+module.exports = { createSalon, searchSalons };

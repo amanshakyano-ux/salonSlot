@@ -46,7 +46,7 @@ app.use("/booking",bookingRoutes)
 app.use((err, req, res, next) => {
   return res.status(500).json({ success: false, message: err.message });
 });
-db.sync()
+db.sync({alter:true})
   .then(() => {
     app.listen(process.env.PORT, () => {
       console.log(`Worker ${process.pid} running`);

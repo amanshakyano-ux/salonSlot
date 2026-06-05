@@ -31,6 +31,10 @@ const Salon = sequelize.define("Salon", {
     type: DataTypes.TIME,
     allowNull: false,
   },
+  imageUrl: {
+  type: DataTypes.STRING,
+  allowNull: true,
+}
 });
 
 module.exports = Salon;
