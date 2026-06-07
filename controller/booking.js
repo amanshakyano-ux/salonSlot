@@ -37,7 +37,6 @@ const bookNow = async (req, res, next) => {
       message: "Booking created successfully",
       booking,
     });
-
   } catch (err) {
     if (err.name === "SequelizeUniqueConstraintError") {
       return res.status(409).json({
@@ -49,9 +48,6 @@ const bookNow = async (req, res, next) => {
     next(err);
   }
 };
-
- 
- 
 
 const getMyBookings = async (req, res, next) => {
   try {
@@ -80,8 +76,6 @@ const getMyBookings = async (req, res, next) => {
     next(err);
   }
 };
-
-
 
 const getSalonBookings = async (req, res, next) => {
   try {
@@ -129,8 +123,6 @@ const getSalonBookings = async (req, res, next) => {
     next(err);
   }
 };
-
- 
 
 function generateSlots(openingTime, closingTime, gapMinutes = 30) {
   const slots = [];
@@ -182,11 +174,7 @@ const getAvailableSlots = async (req, res, next) => {
       });
     }
 
-    const allSlots = generateSlots(
-      salon.openingTime,
-      salon.closingTime,
-      30
-    );
+    const allSlots = generateSlots(salon.openingTime, salon.closingTime, 30);
 
     const bookings = await Booking.findAll({
       where: {
@@ -200,7 +188,7 @@ const getAvailableSlots = async (req, res, next) => {
     const bookedSlots = bookings.map((booking) => booking.slotTime);
 
     const availableSlots = allSlots.filter(
-      (slot) => !bookedSlots.includes(slot)
+      (slot) => !bookedSlots.includes(slot),
     );
 
     return res.status(200).json({
@@ -215,12 +203,59 @@ const getAvailableSlots = async (req, res, next) => {
   }
 };
 
+const cancelBooking = async (req, res, next) => {
+  try {
+    const bookingId = Number(req.params.bookingId);
+
+    if (!Number.isInteger(bookingId) || bookingId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid bookingId",
+      });
+    }
+
+    const booking = await Booking.findByPk(bookingId);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    if (booking.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to cancel this booking",
+      });
+    }
+
+    if (booking.status === "cancelled") {
+      return res.status(400).json({
+        success: false,
+        message: "Booking is already cancelled",
+      });
+    }
+
+    booking.status = "cancelled";
+    await booking.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Booking cancelled successfully",
+      booking,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
  
+
 module.exports = {
+  cancelBooking,
   getMyBookings,
   bookNow,
   getSalonBookings,
   getAvailableSlots
 };
-
- 
