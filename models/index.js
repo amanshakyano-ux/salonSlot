@@ -2,6 +2,7 @@ const User = require("./user");
 const Salon = require("./salon");
 const Service = require("./service");
 const Booking = require("./booking");
+const ResetPass = require("./passResetLink");
 User.hasMany(Salon, { foreignKey: "ownerId", onDelete: "CASCADE" });
 Salon.belongsTo(User, { foreignKey: "ownerId" });
 
@@ -22,4 +23,7 @@ Booking.belongsTo(Salon, { foreignKey: "salonId" });
 
 Service.hasMany(Booking, { foreignKey: "serviceId",onDelete:"CASCADE" });
 Booking.belongsTo(Service, { foreignKey: "serviceId" });
-module.exports = { User, Salon, Service, Booking };
+
+User.hasMany(ResetPass,{foreignKey:"userId",onDelete:"CASCADE"})
+ResetPass.belongsTo(User,{foreignKey:"userId"})
+module.exports = { User, Salon, Service, Booking,ResetPass };

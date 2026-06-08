@@ -9,14 +9,12 @@ if(cluster.isPrimary)
   {
        cluster.fork()
   }
-  cluster.on("exit",()=>{
+  cluster.on("exit", (worker) => {
     console.log(`Worker ${worker.process.pid} died`);
     cluster.fork();
-  })
+  });
 }
 else{
-
-
 require("dotenv").config();
 const db = require("./utils/db-connection");
 const express = require("express");
@@ -25,6 +23,7 @@ const salonRoutes = require("./routes/salonRoutes");
 const serviceRoutes = require("./routes/serviceRoutes")
 const bookingRoutes = require("./routes/bookingRoutes")
 const adminRoutes = require("./routes/adminRoutes")
+const password = require("./routes/password")
 require("./models")
 
 const app = express();
@@ -45,14 +44,14 @@ app.use("/service",serviceRoutes)
 
 app.use("/booking",bookingRoutes)
 
+app.use("/password",password)
+
 app.use("/admin",adminRoutes)
-
-
 
 app.use((err, req, res, next) => {
   return res.status(500).json({ success: false, message: err.message });
 });
-db.sync()
+db.authenticate()
   .then(() => {
     app.listen(process.env.PORT, () => {
       console.log(`Worker ${process.pid} running`);
