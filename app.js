@@ -9,10 +9,10 @@ if(cluster.isPrimary)
   {
        cluster.fork()
   }
-  cluster.on("exit", (worker) => {
+  cluster.on("exit",()=>{
     console.log(`Worker ${worker.process.pid} died`);
     cluster.fork();
-  });
+  })
 }
 else{
 require("dotenv").config();

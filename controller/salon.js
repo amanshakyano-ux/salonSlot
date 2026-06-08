@@ -68,36 +68,25 @@ const searchSalons = async (req, res, next) => {
   try {
     const { query } = req.query;
 
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
     const whereClause = {};
 
     if (query) {
       whereClause[Op.or] = [
-        {
-          name: {
-            [Op.like]: `%${query}%`,
-          },
-        },
-        {
-          city: {
-            [Op.like]: `%${query}%`,
-          },
-        },
-        {
-          area: {
-            [Op.like]: `%${query}%`,
-          },
-        },
-        {
-          address: {
-            [Op.like]: `%${query}%`,
-          },
-        },
+        { name: { [Op.like]: `%${query}%` } },
+        { city: { [Op.like]: `%${query}%` } },
+        { area: { [Op.like]: `%${query}%` } },
+        { address: { [Op.like]: `%${query}%` } },
       ];
     }
 
-    const salons = await Salon.findAll({
+    const { count, rows: salons } = await Salon.findAndCountAll({
       where: whereClause,
-
+      limit,
+      offset,
       include: [
         {
           model: User,
@@ -126,11 +115,11 @@ const searchSalons = async (req, res, next) => {
         area: salon.area,
         openingTime: salon.openingTime,
         closingTime: salon.closingTime,
-        imageUrl:salon.imageUrl,
+        imageUrl: salon.imageUrl,
 
         owner: {
-          id: salon.userid,
-          name: salon.user.name,
+          id: salon.User?.id,
+          name: salon.User?.name,
         },
 
         servicesFrom: startingPrice,
@@ -139,7 +128,9 @@ const searchSalons = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      totalSalons: formattedSalons.length,
+      totalSalons: count,
+      currentPage: page,
+      totalPages: Math.ceil(count / limit),
       salons: formattedSalons,
     });
   } catch (err) {
