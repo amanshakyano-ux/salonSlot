@@ -12,12 +12,10 @@ const signupUser = async (req, res, next) => {
         .json({ success: false, message: "All Fields Are Mandatory" });
     }
     if (password.length <= 5)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Password length should be greter than 6",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Password length should be greter than 6",
+      });
     const normalizedEmail = email.toLowerCase().trim();
     const user = await User.findOne({ where: { email: normalizedEmail } });
     if (user) {

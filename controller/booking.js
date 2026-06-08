@@ -1,7 +1,7 @@
 const Booking = require("../models/booking");
 const Service = require("../models/service");
 const Salon = require("../models/salon");
-
+const {sendBookingConfirmationEmail,sendBookingCancelledEmail} = require("../services/emailService")
 const bookNow = async (req, res, next) => {
   try {
     const { serviceId } = req.params;
@@ -32,6 +32,14 @@ const bookNow = async (req, res, next) => {
       status: "booked",
     });
 
+    try {
+     
+  await sendBookingConfirmationEmail(req.user, booking);
+} catch (emailErr) {
+  console.log("Email failed:", emailErr.message);
+}
+ 
+   
     return res.status(201).json({
       success: true,
       message: "Booking created successfully",
@@ -239,6 +247,11 @@ const cancelBooking = async (req, res, next) => {
 
     booking.status = "cancelled";
     await booking.save();
+  try {
+  await sendBookingCancelledEmail(req.user, booking);
+} catch (emailErr) {
+  console.log("Cancellation email failed:", emailErr.message);
+}
 
     return res.status(200).json({
       success: true,

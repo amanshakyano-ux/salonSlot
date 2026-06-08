@@ -5,22 +5,17 @@ const { isInValid } = require("../services/validator");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
 const { Op } = require("sequelize");
-const  Booking  = require("../models/booking")
+const Booking = require("../models/booking");
 
-
-
-
-
- const getSalon = async (req, res, next) => {
+const getSalon = async (req, res, next) => {
   try {
-    
-    const  salonId  = Number(req.params.salonId);
+    const salonId = Number(req.params.salonId);
     if (!salonId) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid salonId",
-  });
-}
+      return res.status(400).json({
+        success: false,
+        message: "Invalid salonId",
+      });
+    }
     const salon = await Salon.findOne({
       where: { id: Number(salonId) },
       include: [
@@ -138,4 +133,4 @@ const searchSalons = async (req, res, next) => {
   }
 };
 
-module.exports = {  searchSalons,getSalon };
+module.exports = { searchSalons, getSalon };

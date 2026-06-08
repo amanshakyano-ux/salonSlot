@@ -56,6 +56,14 @@ Full-stack salon booking platform where users can discover salons, view services
 * Owner Information Included
 * Starting Service Price Included
 
+### Additional Features
+
+* Password reset flow with email-based reset link, 15-minute expiry, and one-time-use reset tokens
+* Booking email notifications for confirmation, cancellation, and completion
+* Cloudinary-backed salon image upload for salon create/update operations
+* Protected admin/owner endpoints for salon/service management and booking completion
+* Scheduled cleanup of expired password reset tokens using node-cron
+
 ### Tech Stack
 
 * Node.js
@@ -64,7 +72,9 @@ Full-stack salon booking platform where users can discover salons, view services
 * Sequelize ORM
 * JWT
 * bcrypt
+* Cloudinary
+* node-cron
 
 ### Current Status
 
-Backend MVP completed with authentication, salon management, service management, appointment booking, slot availability, and salon search functionality.
+Backend MVP completed with authentication, salon management, service management, appointment booking, slot availability, password reset, email notifications, image upload, and salon search functionality.

@@ -1,5 +1,6 @@
-
-const {Salon,Booking,Service,User} = require("../models/index")
+const { Salon, Booking, Service, User } = require("../models/index");
+const {bookingCompletedEmail} = require("../services/emailService")
+const {isInValid} = require("../services/validator")
 const deleteSalon = async (req, res, next) => {
   try {
     const salonId = Number(req.params.salonId);
@@ -55,6 +56,8 @@ const completeBooking = async (req, res, next) => {
           model: Salon,
           attributes: ["ownerId"],
         },
+        {model:User,
+        attributes:["name","email"]}
       ],
     });
 
@@ -89,6 +92,13 @@ const completeBooking = async (req, res, next) => {
     booking.status = "completed";
     await booking.save();
 
+    try{
+       
+      await bookingCompletedEmail(booking.User)
+
+    }catch(emailErr){
+      console.log("Email Error - ",emailErr.message)
+    }
     return res.status(200).json({
       success: true,
       message: "Booking completed successfully",
@@ -267,7 +277,7 @@ const uploadToCloudinary = (buffer) => {
       (error, result) => {
         if (error) return reject(error);
         resolve(result);
-      }
+      },
     );
 
     streamifier.createReadStream(buffer).pipe(stream);
@@ -358,5 +368,5 @@ module.exports = {
   deleteService,
   updateSalon,
   deleteSalon,
-  getMySalons
+  getMySalons,
 };

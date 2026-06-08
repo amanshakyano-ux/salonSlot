@@ -52,8 +52,6 @@ const sendPasswordResetLink = async (req, res, next) => {
   }
 };
 
-
-
 const resetPassword = async (req, res, next) => {
   try {
     const { token } = req.params;

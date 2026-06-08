@@ -11,8 +11,19 @@ const authenticate = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    const user = await User.findByPk(decoded.id, {
+      attributes: ["id", "name", "email", "role"],
+    });
 
-    req.user = decoded;
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    req.user = user;
+    
     next();
   } catch (err) {
      return res.status(401).json({
@@ -24,23 +35,16 @@ const authenticate = async (req, res, next) => {
 
 const adminAuth = async (req, res, next) => {
   try {
-      const user = await User.findByPk(req.user.id);
+     
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found"
-      });
-    }
-
-    if (user.role !== "owner") {
+    if (req.user.role !== "owner") {
       return res.status(403).json({
         success: false,
         message: "Only owners can access this API"
       });
     }
 
-    req.user = user;
+    
 
     next();
 
