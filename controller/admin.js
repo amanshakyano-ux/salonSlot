@@ -1,6 +1,8 @@
 const { Salon, Booking, Service, User } = require("../models/index");
 const {bookingCompletedEmail} = require("../services/emailService")
 const {isInValid} = require("../services/validator")
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
 const deleteSalon = async (req, res, next) => {
   try {
     const salonId = Number(req.params.salonId);

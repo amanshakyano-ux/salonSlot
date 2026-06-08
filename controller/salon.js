@@ -2,8 +2,7 @@ const Salon = require("../models/salon");
 const User = require("../models/user");
 const Service = require("../models/service");
 const { isInValid } = require("../services/validator");
-const cloudinary = require("../utils/cloudinary");
-const streamifier = require("streamifier");
+
 const { Op } = require("sequelize");
 const Booking = require("../models/booking");
 

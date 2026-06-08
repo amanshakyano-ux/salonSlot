@@ -20,7 +20,9 @@ if (cluster.isPrimary) {
   const serviceRoutes = require("./routes/serviceRoutes");
   const bookingRoutes = require("./routes/bookingRoutes");
   const adminRoutes = require("./routes/adminRoutes");
-  const password = require("./routes/password");
+  const passwordRoutes = require("./routes/password");
+  const paymentRoutes = require("./routes/paymentRoutes")
+  
   require("./models");
 
   const app = express();
@@ -39,14 +41,16 @@ if (cluster.isPrimary) {
 
   app.use("/booking", bookingRoutes);
 
-  app.use("/password", password);
+  app.use("/password", passwordRoutes);
 
   app.use("/admin", adminRoutes);
+
+  app.use("/payment",paymentRoutes)
 
   app.use((err, req, res, next) => {
     return res.status(500).json({ success: false, message: err.message });
   });
-  db.authenticate()
+  db.sync({alter:true})
     .then(() => {
       app.listen(process.env.PORT, () => {
         console.log(`Worker ${process.pid} running`);

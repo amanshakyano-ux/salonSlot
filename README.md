@@ -61,6 +61,7 @@ Full-stack salon booking platform where users can discover salons, view services
 * Password reset flow with email-based reset link, 15-minute expiry, and one-time-use reset tokens
 * Booking email notifications for confirmation, cancellation, and completion
 * Cloudinary-backed salon image upload for salon create/update operations
+* Cashfree payment integration for secure order creation and verification
 * Protected admin/owner endpoints for salon/service management and booking completion
 * Scheduled cleanup of expired password reset tokens using node-cron
 
