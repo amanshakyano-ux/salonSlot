@@ -21,14 +21,7 @@ const Booking = sequelize.define("Booking",
     defaultValue: "booked",
   },
  
-},
-{
-     indexes: [
-  {
-    unique: true,
-    fields: ["salonId", "bookingDate", "slotTime"],
-  },
-]
-});
+}
+ );
 
 module.exports = Booking;

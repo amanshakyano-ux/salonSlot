@@ -3,6 +3,53 @@ const {bookingCompletedEmail} = require("../services/emailService")
 const {isInValid} = require("../services/validator")
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
+ 
+const getSalonBookings = async (req, res, next) => {
+  try {
+    const { salonId } = req.params;
+
+    const salon = await Salon.findByPk(salonId);
+
+    if (!salon) {
+      return res.status(404).json({
+        success: false,
+        message: "Salon not found",
+      });
+    }
+
+    if (salon.ownerId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You can view only your own salon bookings",
+      });
+    }
+
+    const bookings = await Booking.findAll({
+      where: { salonId },
+      include: [
+        {
+          model: User,
+          attributes: ["id", "name", "email"],
+        },
+        {
+          model: Service,
+          attributes: ["id", "name", "price", "durationMinutes"],
+        },
+      ],
+      order: [
+        ["bookingDate", "ASC"],
+        ["slotTime", "ASC"],
+      ],
+    });
+
+    return res.status(200).json({
+      success: true,
+      bookings,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 const deleteSalon = async (req, res, next) => {
   try {
     const salonId = Number(req.params.salonId);
@@ -371,4 +418,5 @@ module.exports = {
   updateSalon,
   deleteSalon,
   getMySalons,
+  getSalonBookings
 };

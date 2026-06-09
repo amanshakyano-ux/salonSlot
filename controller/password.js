@@ -39,7 +39,7 @@ const sendPasswordResetLink = async (req, res, next) => {
       expiresAt,
     });
 
-    const resetLink = `${process.env.BASE_URL}/reset-password/${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
     await sendResetPasswordEmail(user.email, resetLink);
 

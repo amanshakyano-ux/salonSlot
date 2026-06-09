@@ -48,8 +48,8 @@ const getSalon = async (req, res, next) => {
         openingTime: salon.openingTime,
         closingTime: salon.closingTime,
         owner: {
-          id: salon.user.id,
-          name: salon.user.name,
+          id: salon.User?.id,
+          name: salon.User?.name
         },
         services: salon.Services || [],
       },

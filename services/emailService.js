@@ -121,6 +121,7 @@ const bookingCompletedEmail = async(user)=>{
 module.exports = {
   sendBookingConfirmationEmail,
   sendBookingCancelledEmail,
-  bookingCompletedEmail
+  bookingCompletedEmail,
+  sendResetPasswordEmail
 };
 

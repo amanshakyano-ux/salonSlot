@@ -1,7 +1,7 @@
 const Payment = require("../models/payment");
 const Service = require("../models/service");
 const { createCashfreeOrder ,getCashfreeOrderStatus} = require("../services/cashfreeService");
- 
+ const { sendBookingConfirmationEmail,} = require("../services/emailService")
 const Booking = require("../models/booking");
 
 
@@ -92,7 +92,21 @@ const verifyPayment = async (req, res, next) => {
         orderStatus: orderStatus.order_status,
       });
     }
+const existingBookedBooking = await Booking.findOne({
+  where: {
+    salonId: payment.salonId,
+    bookingDate: payment.bookingDate,
+    slotTime: payment.slotTime,
+    status: "booked",
+  },
+});
 
+if (existingBookedBooking) {
+  return res.status(409).json({
+    success: false,
+    message: "This slot is already booked",
+  });
+}
     const booking = await Booking.create({
       userId: payment.userId,
       salonId: payment.salonId,
@@ -104,6 +118,12 @@ const verifyPayment = async (req, res, next) => {
 
     payment.status = "success";
     await payment.save();
+try {
+  await sendBookingConfirmationEmail(req.user, payment);
+} catch (emailErr) {
+  console.error("Booking confirmation email failed:", emailErr);
+}
+
 
     return res.status(200).json({
       success: true,

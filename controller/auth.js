@@ -71,7 +71,13 @@ const loginUser = async (req, res, next) => {
         return res.status(200).json({
           success: true,
           token: generateToken(user),
-          message: "User is logged in",
+          user: {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            },
+          message: "Login successful",
         });
       }
     }

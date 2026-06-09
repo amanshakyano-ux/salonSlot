@@ -1,3 +1,4 @@
+require("dotenv").config();
 const os = require("os");
 const numsCPUs = os.cpus().length;
 const cluster = require("cluster");
@@ -12,7 +13,7 @@ if (cluster.isPrimary) {
     cluster.fork();
   });
 } else {
-  require("dotenv").config();
+  
   const db = require("./utils/db-connection");
   const express = require("express");
   const userRoutes = require("./routes/authRoutes");
@@ -26,6 +27,8 @@ if (cluster.isPrimary) {
   require("./models");
 
   const app = express();
+  const cors = require("cors")
+  app.use(cors())
   app.use(express.json());
   app.use(
     express.urlencoded({
@@ -50,7 +53,7 @@ if (cluster.isPrimary) {
   app.use((err, req, res, next) => {
     return res.status(500).json({ success: false, message: err.message });
   });
-  db.sync({alter:true})
+  db.sync()
     .then(() => {
       app.listen(process.env.PORT, () => {
         console.log(`Worker ${process.pid} running`);

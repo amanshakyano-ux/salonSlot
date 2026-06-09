@@ -5,58 +5,58 @@ const {
   sendBookingConfirmationEmail,
   sendBookingCancelledEmail,
 } = require("../services/emailService");
-const bookNow = async (req, res, next) => {
-  try {
-    const { serviceId } = req.params;
-    const { bookingDate, slotTime } = req.body;
+// const bookNow = async (req, res, next) => {
+//   try {
+//     const { serviceId } = req.params;
+//     const { bookingDate, slotTime } = req.body;
 
-    if (!bookingDate || !slotTime) {
-      return res.status(400).json({
-        success: false,
-        message: "Booking date and slot time are required",
-      });
-    }
+//     if (!bookingDate || !slotTime) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Booking date and slot time are required",
+//       });
+//     }
 
-    const service = await Service.findByPk(serviceId);
+//     const service = await Service.findByPk(serviceId);
 
-    if (!service) {
-      return res.status(404).json({
-        success: false,
-        message: "Service not found",
-      });
-    }
+//     if (!service) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Service not found",
+//       });
+//     }
 
-    const booking = await Booking.create({
-      userId: req.user.id,
-      salonId: service.salonId,
-      serviceId,
-      bookingDate,
-      slotTime,
-      status: "booked",
-    });
+//     const booking = await Booking.create({
+//       userId: req.user.id,
+//       salonId: service.salonId,
+//       serviceId,
+//       bookingDate,
+//       slotTime,
+//       status: "booked",
+//     });
 
-    try {
-      await sendBookingConfirmationEmail(req.user, booking);
-    } catch (emailErr) {
-      console.log("Email failed:", emailErr.message);
-    }
+//     try {
+//       await sendBookingConfirmationEmail(req.user, booking);
+//     } catch (emailErr) {
+//       console.log("Email failed:", emailErr.message);
+//     }
 
-    return res.status(201).json({
-      success: true,
-      message: "Booking created successfully",
-      booking,
-    });
-  } catch (err) {
-    if (err.name === "SequelizeUniqueConstraintError") {
-      return res.status(409).json({
-        success: false,
-        message: "This slot is already booked",
-      });
-    }
+//     return res.status(201).json({
+//       success: true,
+//       message: "Booking created successfully",
+//       booking,
+//     });
+//   } catch (err) {
+//     if (err.name === "SequelizeUniqueConstraintError") {
+//       return res.status(409).json({
+//         success: false,
+//         message: "This slot is already booked",
+//       });
+//     }
 
-    next(err);
-  }
-};
+//     next(err);
+//   }
+// };
 
 const getMyBookings = async (req, res, next) => {
   try {
@@ -86,52 +86,7 @@ const getMyBookings = async (req, res, next) => {
   }
 };
 
-const getSalonBookings = async (req, res, next) => {
-  try {
-    const { salonId } = req.params;
 
-    const salon = await Salon.findByPk(salonId);
-
-    if (!salon) {
-      return res.status(404).json({
-        success: false,
-        message: "Salon not found",
-      });
-    }
-
-    if (salon.ownerId !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: "You can view only your own salon bookings",
-      });
-    }
-
-    const bookings = await Booking.findAll({
-      where: { salonId },
-      include: [
-        {
-          model: User,
-          attributes: ["id", "name", "email"],
-        },
-        {
-          model: Service,
-          attributes: ["id", "name", "price", "durationMinutes"],
-        },
-      ],
-      order: [
-        ["bookingDate", "ASC"],
-        ["slotTime", "ASC"],
-      ],
-    });
-
-    return res.status(200).json({
-      success: true,
-      bookings,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
 
 function generateSlots(openingTime, closingTime, gapMinutes = 30) {
   const slots = [];
@@ -267,7 +222,7 @@ const cancelBooking = async (req, res, next) => {
 module.exports = {
   cancelBooking,
   getMyBookings,
-  bookNow,
-  getSalonBookings,
+  // bookNow,
+ 
   getAvailableSlots,
 };
