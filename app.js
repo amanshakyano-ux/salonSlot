@@ -30,13 +30,24 @@ if (cluster.isPrimary) {
 
   const app = express();
   const cors = require("cors")
-   app.use(
+   const allowedOrigins = [
+  "http://localhost:5173",
+  "https://trimlyq-frontend.vercel.app",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      process.env.FRONTEND_URL,
-    ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    origin: function (origin, callback) {
+      console.log("Request Origin:", origin);
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "authorization"],
   })
 );
