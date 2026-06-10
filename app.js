@@ -57,6 +57,12 @@ app.use(
       extended: true,
     }),
   );
+  app.get("/ping", (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend latest code working",
+  });
+});
 
   app.use("/salon", salonRoutes);
 
