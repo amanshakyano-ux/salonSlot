@@ -1,4 +1,6 @@
 require("dotenv").config();
+
+/*
 const os = require("os");
 const numsCPUs = os.cpus().length;
 const cluster = require("cluster");
@@ -12,7 +14,7 @@ if (cluster.isPrimary) {
     console.log(`Worker ${worker.process.pid} died`);
     cluster.fork();
   });
-} else {
+} */
   
   const db = require("./utils/db-connection");
   const express = require("express");
@@ -62,13 +64,14 @@ if (cluster.isPrimary) {
   app.use((err, req, res, next) => {
     return res.status(500).json({ success: false, message: err.message });
   });
+
   db.sync()
-    .then(() => {
-      app.listen(process.env.PORT, () => {
-        console.log(`Worker ${process.pid} running`);
-      });
+  .then(() => {
+      const PORT = process.env.PORT || 3000;
+       app.listen(PORT, () => {
+       console.log(`Server is running on port ${PORT}`);
+   });
     })
     .catch((err) => {
       console.log("Server Is Not Running", err.message);
     });
-}
