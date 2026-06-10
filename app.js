@@ -28,7 +28,16 @@ if (cluster.isPrimary) {
 
   const app = express();
   const cors = require("cors")
-  app.use(cors())
+   app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      process.env.FRONTEND_URL,
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "authorization"],
+  })
+);
   app.use(express.json());
   app.use(
     express.urlencoded({
